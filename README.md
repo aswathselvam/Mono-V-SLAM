@@ -42,18 +42,7 @@ export SLAM_DATA_FOLDER = <datatset-folder>
 # Run the code
 - Supervised Learning:
 ```bash
-#Training:
-jupyter nbconvert --to python code/supervised_learning/train.ipynb
-
-#Inference:
-run code/supervised_learning/open_loop_test.ipynb
-
-```
-
-- Reinforcement Learning:
-```bash
-#Training:
-run code/reinforcement_learning/gym_environment_play_and_learn.ipynb
+python3 code/main.py
 ```
 
 # Outputs
