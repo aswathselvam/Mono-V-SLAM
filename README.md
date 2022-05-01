@@ -18,10 +18,12 @@ $ tree -L 2
 ├── code
 │   ├── main.py
 │   └── utils
-│        ├── read_frame.py
+│        ├── load_dataset.py
+│        ├── compute_pose.py
 |        ├── bundle_adjust.py
 |        ├── loop_closure.py
 |        ├── recover_scale.py
+│        ├── plotting.py
 |        └── bag_of_words.py
 ├── dataset
 └── README.md
