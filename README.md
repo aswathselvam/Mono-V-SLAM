@@ -27,10 +27,13 @@ $ tree -L 2
 
 # Setup code
 ## Setup dataset
-1. Download dataset from 
+1. Download `odometry data set (grayscale, 22 GB)`, `odometry ground truth poses (4 MB)`, `odometry data set (calibration files, 1 MB)` dataset from [here](http://www.cvlibs.net/datasets/kitti/eval_odometry.php).
 2. Organize your `<datatset-folder>` folder in this structure:
-
-
+```
+<dataset-folder>
+    ├── poses
+    └── sequences
+```
 
 ## Setup environment
 ```bash
