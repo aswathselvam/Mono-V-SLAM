@@ -4,9 +4,11 @@ from feature_point import FeaturePoint
 import cv2
 from constants import *
 from EstimateFundamentalMatrix import EstimateFundamentalMatrix
-from EssentialMatrixFromFundamentalMatrix import EssentialMatrixFromFundamentalMatrix
+from EssentialMatrix import EssentialMatrixFromFundamentalMatrix
 from ExtractCameraPose import ExtractCameraPose
-
+from DisambiguateCameraPose import DisambiguateCameraPose
+from LinearTriangulation import LinearTriangulation
+from matplotlib import pyplot as plt
 
 def compute_camera_pose(img_paths, K):
     pose = np.zeros([3,4])
@@ -19,12 +21,28 @@ def compute_camera_pose(img_paths, K):
                
         points1,points2 = getMatches(img1,img2) 
         
-        F = EstimateFundamentalMatrix(points1, points2)
+        # points1 = np.float32(points1).reshape(-1,1,2)
+        # points2 = np.float32(points2).reshape(-1,1,2)
+
+        # F = EstimateFundamentalMatrix(points1, points2)
+        F, _ = cv2.findFundamentalMat(points1, points2, cv2.FM_RANSAC) 
         E = EssentialMatrixFromFundamentalMatrix(F,K)
-        R,T = ExtractCameraPose(E)
+        R_set,C_set = ExtractCameraPose(E)
         
         
-        
+
+        X_set = []
+
+        for n in range(0, 4):
+            X1 = LinearTriangulation(K, np.zeros((3, 1)), np.identity(3), C_set[n].T, R_set[n], np.float32(points1), np.float32(points2))
+            X_set.append(X1)
+
+        X, R, C = DisambiguateCameraPose(C_set, R_set, X_set)
+
+
+        pose[:3,:3]=R
+        pose[:,3]=C
+        pointclouds = X
         yield pose, pointclouds
 
 
@@ -35,6 +53,7 @@ def getMatches(img1,img2):
 
     img1_color = cv2.cvtColor(img1,cv2.COLOR_GRAY2BGR)
     img2_color = cv2.cvtColor(img2,cv2.COLOR_GRAY2BGR)
+
 
 
     kpsA,descA = getKeyPoints(img1,ORB)

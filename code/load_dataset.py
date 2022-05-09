@@ -6,7 +6,7 @@ from glob import glob
 import matplotlib.pyplot as plt
 
 
-dataset_folder = "/home/vishaal/Vishaal/Projects/Social_robot/Datasets"
+dataset_folder = os.environ["SLAM_DATA_FOLDER"]
 # print(dataset_folder)
 image_folder = os.path.join(dataset_folder,"sequences","00","image_0/")
 
@@ -24,7 +24,7 @@ def get_image_paths() -> list:
     return frames
 
 
-def get_poses() -> np.array([...,3,4]):
+def get_ground_truth_poses() -> np.array([...,3,4]):
     poses_file = os.path.join(dataset_folder,"poses","00.txt")
     poses = pd.read_csv(poses_file, delimiter=' ', header=None)
 
@@ -48,7 +48,8 @@ def get_K() -> np.array([3,4]):
     camera_params = pd.read_csv(os.path.join(dataset_folder,"sequences","00",'calib.txt'), delimiter=' ', header=None, index_col=0)
     P0 = np.array(camera_params.loc['P0:']).reshape((3,4))
     # print(P0)
-    return P0
+    K, _, _, _, _, _, _ = cv2.decomposeProjectionMatrix(P0)
+    return K
     
 # get_image_paths()
 # get_poses()
