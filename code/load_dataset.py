@@ -6,7 +6,7 @@ from glob import glob
 import matplotlib.pyplot as plt
 
 
-dataset_folder = os.environ["SLAM_DATA_FOLDER"]
+dataset_folder = "/home/vishaal/Vishaal/Projects/Social_robot/Datasets"
 # print(dataset_folder)
 image_folder = os.path.join(dataset_folder,"sequences","00","image_0/")
 
