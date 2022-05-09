@@ -1,5 +1,4 @@
 import numpy as np
-import sys
 
 def DisambiguateCameraPose(Cset, Rset, Xset):
     best = 0
@@ -7,7 +6,7 @@ def DisambiguateCameraPose(Cset, Rset, Xset):
         N = Xset[i].shape[0]
         n = 0
         for j in range(N):
-            if np.dot(Rset[i][2, :], (Xset[i][j, :] - Cset[i])) > 0 and Xset[i][j,2]>0:
+            if np.dot(Rset[i].T[2, :], (Xset[i][j, :] + Cset[i])) > 0 and Xset[i][j,2]>0:
                 n = n + 1
         print(n)
         if n > best:

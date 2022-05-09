@@ -101,7 +101,7 @@ def ransac_F(pts1, pts2):
     return Fs, matchesMask
 
 
-def get_F(pts1, pts2, w,h):
+def FundamentalMatrix(pts1, pts2, w,h):
     T = np.array([[2 / w, 0, -1], [0, 2 / h, -1], [0, 0, 1]])
     pts1_norm, pts2_norm = normalise(pts1, pts2, T)
     Fhat, matchesMask = ransac_F(pts1_norm, pts2_norm)
