@@ -12,6 +12,9 @@ for pose, pointclouds in compute_camera_pose(img_paths, K):
 
     # Update data in the Map
     
+    
+    # Choose Keyframes
+
 
     # Perform BA
 
