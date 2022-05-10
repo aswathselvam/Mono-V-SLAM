@@ -10,9 +10,9 @@ class Plot():
         self.ax_ptcl.set_ylabel('Y axis')
         self.ax_ptcl.set_zlabel('Z axis')
 
-        self.ax_ptcl.set_xlim(-10, 100)
-        self.ax_ptcl.set_ylim(-10, 100)
-        self.ax_ptcl.set_zlim(-10, 10)
+        # self.ax_ptcl.set_xlim(-10, 100)
+        # self.ax_ptcl.set_ylim(-10, 100)
+        # self.ax_ptcl.set_zlim(-10, 10)
         self.ax_ptcl.set_title('Point Cloud')
 
         fig = plt.figure()
@@ -33,10 +33,24 @@ class Plot():
         plt.ion()
         # plt.show()
 
-    def plot_point_cloud(self, X):
+    def plot_point_cloud(self, pointcloud):
         
         # ax_ptcl.scatter([0], [0], [0], color='red',marker=('^'))
-        self.ax_ptcl.scatter(X[:,2], -X[:,0], -X[:,1], marker=('o'), color='green',s=20)
+        
+        positions = []
+        c=[]
+        # print(pointcloud[0].position)
+        for i in range(len(pointcloud)):
+            positions.append(pointcloud[i].position)
+            c.append(pointcloud[i].color)
+        positions = np.array(positions)
+        c = np.dstack((c,c,c))
+        c=np.squeeze(c)
+        # print(c.shape)
+
+        # print(c[:][0])
+
+        self.ax_ptcl.scatter(positions[:,2], -positions[:,0], -positions[:,1], c=c,marker=('o'),s=20)
         self.ax_ptcl.plot([0], [0], [0], markerfacecolor='red', markeredgecolor='red', marker='^', markersize=5, alpha=0.6)
         
         

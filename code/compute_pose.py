@@ -12,7 +12,7 @@ from matplotlib import pyplot as plt
 
 def compute_camera_pose(img_paths, K):
     pose = np.zeros([3,4])
-    pointclouds = FeaturePoint( np.zeros([3,3]))
+    pointclouds = [FeaturePoint( position= np.zeros(3), color = np.ones(1))]
     
     
     for i in range(len(img_paths)):
@@ -42,7 +42,18 @@ def compute_camera_pose(img_paths, K):
 
         pose[:3,:3]=R
         pose[:,3]=C
-        pointclouds = X
+
+        # print(points1.shape)
+        # print(img1[np.array([1,2,3,4]),np.array([1,2,3,4])])
+        # print(points1[0,0,:].astype(np.int))
+
+        # print(img1[points1[:,0,1].astype(np.int), points1[:,0,0].astype(np.int)].shape)
+        for i in range(len(X)):
+            pointcloud_color = img1[points1[i,0,1].astype(np.int), points1[i,0,0].astype(np.int)]/255.0
+            # print(pointcloud_color.shape)
+            # input()
+            pointclouds.append(FeaturePoint(position=X[i], color=pointcloud_color))
+        
         yield pose, pointclouds
 
 

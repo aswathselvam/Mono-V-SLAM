@@ -27,12 +27,13 @@ plotter = Plot()
 frame_num = 0
 
 
-for pose, pointclouds in compute_camera_pose(img_paths, K):
 
-    for i in range(len(pointclouds)):
-        pointclouds[i] = pointclouds[i]+gt_poses[frame_num,:,3]
+for pose, pointcloud in compute_camera_pose(img_paths, K):
+
+    for i in range(len(pointcloud)):
+        pointcloud[i] = pointcloud[i]+gt_poses[frame_num,:,3]
         
-    pointcloud = np.asarray(pointclouds)
+    # pointcloud = np.asarray(pointcloud)
     plotter.plot_point_cloud(pointcloud[:10])
     state.update(pose)
     plotter.plot_trajectory(state, gt_poses[:frame_num])
