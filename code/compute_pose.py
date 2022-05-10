@@ -59,13 +59,13 @@ def getMatches(img1,img2):
     kpsA,descA = getKeyPoints(img1,ORB)
     siftImgA = img1_color.copy()
     cv2.drawKeypoints(siftImgA,kpsA,siftImgA)
-    cv2.imshow("SIFT Keypoints on Image A ",siftImgA)
+    # cv2.imshow("SIFT Keypoints on Image A ",siftImgA)
 
     
     kpsB,descB = getKeyPoints(img2,ORB)
     siftImgB = img2_color.copy()
     cv2.drawKeypoints(siftImgB,kpsB,siftImgB)
-    cv2.imshow("SIFT Keypoints on Image B ",siftImgB)
+    # cv2.imshow("SIFT Keypoints on Image B ",siftImgB)
 
     bf = cv2.BFMatcher(cv2.NORM_L1, crossCheck=True)
     matches = bf.match(descA,descB)
@@ -76,7 +76,7 @@ def getMatches(img1,img2):
 
     matches_img = np.zeros(img1_color.shape)
     matches_img = cv2.drawMatches(img1_color, kpsA, img2_color, kpsB, matches[:50], matches_img, flags=2)
-    cv2.imshow("Keypoint Matches", matches_img)
+    # cv2.imshow("Keypoint Matches", matches_img)
 
     points1 = np.float32([kpsA[mat.queryIdx].pt for mat in matches]).reshape(-1,1,2)
     points2 = np.float32([kpsB[mat.trainIdx].pt for mat in matches]).reshape(-1,1,2)

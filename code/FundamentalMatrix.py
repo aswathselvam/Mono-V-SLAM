@@ -96,8 +96,8 @@ def ransac_F(pts1, pts2):
             n = num_inliners
             Fs = F
             matchesMask = inliners_mask
-    print(val.shape)
-    print("no. of inliers : ", n)
+    # print(val.shape)
+    # print("no. of inliers : ", n)
     return Fs, matchesMask
 
 

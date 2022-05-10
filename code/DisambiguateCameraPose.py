@@ -8,7 +8,7 @@ def DisambiguateCameraPose(Cset, Rset, Xset):
         for j in range(N):
             if np.dot(Rset[i].T[2, :], (Xset[i][j, :] + Cset[i])) > 0 and Xset[i][j,2]>0:
                 n = n + 1
-        print(n)
+        # print(n)
         if n > best:
             C = Cset[i]
             R = Rset[i]

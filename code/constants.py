@@ -1,0 +1,2 @@
+ORB = 'orb'
+SIFT = 'sift'

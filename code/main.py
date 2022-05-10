@@ -29,12 +29,12 @@ frame_num = 0
 
 for pose, pointclouds in compute_camera_pose(img_paths, K):
 
-    for i in range(len(pointclouds[0])):
-        pointclouds[i] = pointclouds[i]+pose[:3,3]
+    for i in range(len(pointclouds)):
+        pointclouds[i] = pointclouds[i]+gt_poses[frame_num,:,3]
         
     pointcloud = np.asarray(pointclouds)
-    new_pose = State(pose[0,3], pose[1,3], pose[2,3])
-    state += new_pose
+    plotter.plot_point_cloud(pointcloud[:10])
+    state.update(pose)
     plotter.plot_trajectory(state, gt_poses[:frame_num])
     frame_num += 1
 
