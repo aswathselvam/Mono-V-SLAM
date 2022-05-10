@@ -105,7 +105,7 @@ class PangolinPlot():
         pointcloud_positions = []
         pointcloud_color=[]
         for i in range(len(pointcloud)):
-            pointcloud_positions.append(pointcloud[i].position)
+            pointcloud_positions.append([pointcloud[i].position[2], pointcloud[i].position[0], pointcloud[i].position[1]])
             pointcloud_color.append(pointcloud[i].color)
 
         self.pointcloud_positions = np.array(pointcloud_positions)
@@ -187,7 +187,8 @@ class PangolinPlot():
             points = points * 3 + 1
             gl.glPointSize(3)
         
-            pangolin.glDrawPoints(points)
+            if len(self.pointcloud_positions) > 0:
+                pangolin.glDrawPoints(self.pointcloud_positions)
             # pangolin.glDrawColouredCube(0.1)
 
             # Draw lines

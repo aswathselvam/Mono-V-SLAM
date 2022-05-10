@@ -32,7 +32,8 @@ frame_num = 1
 for pose, pointcloud in compute_camera_pose(img_paths, K):
 
     for i in range(len(pointcloud)):
-        pointcloud[i] = pointcloud[i]+gt_poses[frame_num,:,3]
+        # pointcloud[i] = pointcloud[i]+gt_poses[frame_num,:,3]
+        pointcloud[i].update(gt_poses[frame_num,:,:])
         
     # pointcloud = np.asarray(pointcloud)
     pangolinplotter.plot_point_cloud(pointcloud)
