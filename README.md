@@ -40,11 +40,19 @@ $ tree -L 2
 ```
 
 ## Setup environment
+- Add the dataset folder location
 ```bash
 # ~/.bashrc
 export SLAM_DATA_FOLDER = <datatset-folder>
 ```
 
+### Install dependencies
+- Install python requirements:
+    ```bash
+    pip install requirements.txt
+    ```
+- Install Pangolin for visualization from:
+https://github.com/stevenlovegrove/Pangolin
 
 # Run the code
 - Supervised Learning:

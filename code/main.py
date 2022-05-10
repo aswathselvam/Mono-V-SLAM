@@ -23,8 +23,9 @@ gt_poses = get_ground_truth_poses()
 K = get_K()
 map = Map()
 state = State(x=0,y=0,z=0)
-plotter = Plot()
-frame_num = 0
+# plotter = Plot()
+pangolinplotter = PangolinPlot()
+frame_num = 1
 
 
 
@@ -34,9 +35,9 @@ for pose, pointcloud in compute_camera_pose(img_paths, K):
         pointcloud[i] = pointcloud[i]+gt_poses[frame_num,:,3]
         
     # pointcloud = np.asarray(pointcloud)
-    plotter.plot_point_cloud(pointcloud[:10])
+    pangolinplotter.plot_point_cloud(pointcloud)
     state.update(pose)
-    plotter.plot_trajectory(state, gt_poses[:frame_num])
+    pangolinplotter.plot_trajectory(state, gt_poses[:frame_num])
     frame_num += 1
 
     # Update data in the Map

@@ -1,5 +1,11 @@
+# import matplotlib
+# matplotlib.use('module://mplopengl.backend_qtgl')
+
 import matplotlib.pyplot as plt
 import numpy as np
+import OpenGL.GL as gl
+import pypangolin as pangolin
+import threading
 
 class Plot():
 
@@ -77,3 +83,147 @@ class Plot():
     def reset_plot():
         
         plt.ioff() 
+
+
+
+class PangolinPlot():
+    def __init__(self):
+        self.pointcloud_positions = []
+        self.pointcloud_color=[]
+        
+        self.states = np.zeros(3)
+        self.states = np.vstack((self.states, np.zeros(3)))
+
+        self.gt_states = np.zeros(3)
+        self.gt_states = np.vstack((self.gt_states, np.zeros(3)))
+
+        x = threading.Thread(target=self.plotting_thread)
+        x.start()
+
+
+    def plot_point_cloud(self, pointcloud):
+        pointcloud_positions = []
+        pointcloud_color=[]
+        for i in range(len(pointcloud)):
+            pointcloud_positions.append(pointcloud[i].position)
+            pointcloud_color.append(pointcloud[i].color)
+
+        self.pointcloud_positions = np.array(pointcloud_positions)
+        self.pointcloud_color = np.dstack((pointcloud_color,pointcloud_color,pointcloud_color))
+        self.pointcloud_color=np.squeeze(pointcloud_color)
+
+    def plot_trajectory(self, state, gt_state):
+        
+        self.states =  np.vstack((self.states, self.states[-1]))
+        self.states = np.vstack((self.states, [-state.z,state.x,state.y])) 
+        
+        self.gt_states =  np.vstack((self.gt_states, self.gt_states[-1]))
+        self.gt_states = np.vstack((self.gt_states, [gt_state[-1,2,3],gt_state[-1,0,3],gt_state[-1,1,3]])) 
+        
+        # self.ax_traj.plot(-self.states[:,2], self.states[:,0],np.zeros(len(self.states[:,1])), color='blue', linestyle='solid', marker='o', markerfacecolor='blue', markersize=2, label='Predicted')
+        # self.ax_traj.plot(gt_state[:,2,3], gt_state[:,0,3], np.zeros(len(gt_state[:,1,3])), color='red', linestyle='dashed', marker='o', markerfacecolor='red', markersize=2, label='Ground Truth')
+        
+
+    def plotting_thread(self):
+
+        pangolin.CreateWindowAndBind('Main', 640, 480)
+        gl.glEnable(gl.GL_DEPTH_TEST)
+
+        # Define Projection and initial ModelView matrix
+        # Note: 2000 is the render distance, we changed this from 200.
+        scam = pangolin.OpenGlRenderState(
+            pangolin.ProjectionMatrix(640, 480, 420, 420, 320, 240, 0.2, 2000),
+            pangolin.ModelViewLookAt(-2, 2, -2, 0, 0, 0, pangolin.AxisDirection.AxisY))
+        handler = pangolin.Handler3D(scam)
+
+        ui_width = 180
+        # Create Interactive View in window
+        # dcam = pangolin.CreateDisplay()
+        dcam = (
+            pangolin.CreateDisplay()
+            .SetBounds(
+                pangolin.Attach(0),
+                pangolin.Attach(1),
+                pangolin.Attach.Pix(ui_width),
+                pangolin.Attach(1),
+                -640.0 / 480.0,
+            )
+            .SetHandler(handler)
+        )
+
+        # dcam.SetBounds(0.0, 1.0, 0.0, 1.0, -640.0/480.0)
+        pangolin.CreatePanel("ui").SetBounds(
+            pangolin.Attach(0), pangolin.Attach(1), pangolin.Attach(0), pangolin.Attach.Pix(ui_width)
+        )
+        # dcam.SetHandler(handler)
+
+        
+        # print(trajectory)
+        # trajectory.pop()
+        # trajectory = np.array(trajectory)
+        test_traj = [[0, -6, 6],[0, -10, 10],[0, -10, 10],[0,-10,20]]
+        
+    
+
+        while not pangolin.ShouldQuit():
+            gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
+            gl.glClearColor(1.0, 1.0, 1.0, 1.0)
+            dcam.Activate(scam)
+            
+            # Render OpenGL Cube
+
+            # Draw Point Cloud
+            # points = np.random.random((10000, 3)) * 3 - 4
+            # gl.glPointSize(1)
+            # gl.glColor3f(1.0, 0.0, 0.0)
+            # pangolin.glDrawPoints(points)
+
+            # Draw Point Cloud
+            points = np.random.random((10000, 3))
+            colors = np.zeros((len(points), 3))
+            colors[:, 1] = 1 -points[:, 0]
+            colors[:, 2] = 1 - points[:, 1]
+            colors[:, 0] = 1 - points[:, 2]
+            points = points * 3 + 1
+            gl.glPointSize(3)
+        
+            pangolin.glDrawPoints(points)
+            # pangolin.glDrawColouredCube(0.1)
+
+            # Draw lines
+
+
+            # trajectory.append(trajectory[-1] + np.random.random(3)-0.5)
+            # trajectory.append(trajectory[-1])
+
+            gl.glLineWidth(3)
+
+            
+
+            if len(self.states) >1:
+                gl.glColor3f(1.0, 0.0, 1.0)
+                pangolin.glDrawLines(np.array(self.states))
+                gl.glColor3f(0.0, 0.0, 1.0)
+                pangolin.glDrawLines(np.array(self.gt_states))
+            # pangolin.glDrawLines(test_traj)   # consecutive
+            gl.glColor3f(0.0, 1.0, 0.0)
+
+
+            # Draw camera
+            # pose = np.identity(4)
+            # pose[:3, 3] = np.random.randn(3)
+            # gl.glLineWidth(1)
+            # gl.glColor3f(0.0, 0.0, 1.0)
+            # pangolin.glDrawCamera(pose, 0.5, 0.75, 0.8)
+
+            # Draw boxes
+            # poses = [np.identity(4) for i in range(10)]
+            # for pose in poses:
+                # pose[:3, 3] = np.random.randn(3) + np.array([5,-3,0])
+            # sizes = np.random.random((len(poses), 3))
+            # gl.glLineWidth(1)
+            # gl.glColor3f(1.0, 0.0, 1.0)
+            # pangolin.glDrawBoxes(poses, sizes)
+            # print(len(trajectory))
+            # time.sleep(0.1)
+            pangolin.FinishFrame()
