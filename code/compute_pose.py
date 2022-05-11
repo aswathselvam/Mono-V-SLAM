@@ -87,8 +87,8 @@ def getMatches(img1,img2):
 
     matches_img = np.zeros(img1_color.shape)
     matches_img = cv2.drawMatches(img1_color, kpsA, img2_color, kpsB, matches[:50], matches_img, flags=2)
-    # cv2.imshow("Keypoint Matches", matches_img)
-
+    # cv2.imwrite("Keypoint Matches.png", matches_img)
+    # cv2.waitKey(1)
     points1 = np.float32([kpsA[mat.queryIdx].pt for mat in matches]).reshape(-1,1,2)
     points2 = np.float32([kpsB[mat.trainIdx].pt for mat in matches]).reshape(-1,1,2)
 

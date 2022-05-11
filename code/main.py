@@ -27,20 +27,22 @@ state = State(x=0,y=0,z=0)
 pangolinplotter = PangolinPlot()
 frame_num = 1
 
-
+import time 
 
 for pose, pointcloud in compute_camera_pose(img_paths, K):
+
+    start = time.time()
 
     for i in range(len(pointcloud)):
         # pointcloud[i] = pointcloud[i]+gt_poses[frame_num,:,3]
         pointcloud[i].update(gt_poses[frame_num,:,:])
         
     # pointcloud = np.asarray(pointcloud)
-    pangolinplotter.plot_point_cloud(pointcloud)
+    pangolinplotter.plot_point_cloud(pointcloud[-30:])
     state.update(pose)
     pangolinplotter.plot_trajectory(state, gt_poses[:frame_num])
     frame_num += 1
-
+    print("Time:", start - time.time())
     # Update data in the Map
     
     

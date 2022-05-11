@@ -14,6 +14,7 @@ class State():
     def update(self, pose):
         self.R = self.R@pose[:3,:3]
         self.T = self.T + self.R@pose[:3,3]
+        # self.T = self.T*0.9
         # self.T = self.R@pose[:3,3]
         # print(np.linalg.det(self.T))
 

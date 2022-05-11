@@ -6,6 +6,8 @@ import numpy as np
 import OpenGL.GL as gl
 import pypangolin as pangolin
 import threading
+import random
+import time
 
 class Plot():
 
@@ -93,9 +95,14 @@ class PangolinPlot():
         
         self.states = np.zeros(3)
         self.states = np.vstack((self.states, np.zeros(3)))
+        self.key_frames = 2*np.zeros(3)
+        self.key_frames = np.vstack((self.key_frames,  3*np.zeros(3)))
+
+        self.count_key_frames = 0
 
         self.gt_states = np.zeros(3)
         self.gt_states = np.vstack((self.gt_states, np.zeros(3)))
+        self.mutex_lock = False
 
         x = threading.Thread(target=self.plotting_thread)
         x.start()
@@ -114,26 +121,42 @@ class PangolinPlot():
 
     def plot_trajectory(self, state, gt_state):
         
+        self.mutex_lock = True
+
         self.states =  np.vstack((self.states, self.states[-1]))
         self.states = np.vstack((self.states, [-state.z,state.x,state.y])) 
         
+        # if len(self.states)%2!=0:
+        #     self.states =  np.vstack((self.states, self.states[-1]))
+        
+        
         self.gt_states =  np.vstack((self.gt_states, self.gt_states[-1]))
         self.gt_states = np.vstack((self.gt_states, [gt_state[-1,2,3],gt_state[-1,0,3],gt_state[-1,1,3]])) 
+
+        # if len(self.gt_states)%2!=0:
+        #     self.gt_states =  np.vstack((self.gt_states, self.gt_states[-1]))
+        
+
+        if self.count_key_frames%random.randint(2,10) == 0:
+            self.key_frames = np.vstack((self.key_frames,[-state.z,state.x,state.y]))
+        self.count_key_frames+=1
         
         # self.ax_traj.plot(-self.states[:,2], self.states[:,0],np.zeros(len(self.states[:,1])), color='blue', linestyle='solid', marker='o', markerfacecolor='blue', markersize=2, label='Predicted')
         # self.ax_traj.plot(gt_state[:,2,3], gt_state[:,0,3], np.zeros(len(gt_state[:,1,3])), color='red', linestyle='dashed', marker='o', markerfacecolor='red', markersize=2, label='Ground Truth')
+        time.sleep(0.01)
+        self.mutex_lock = False
         
 
     def plotting_thread(self):
 
-        pangolin.CreateWindowAndBind('Main', 640, 480)
+        pangolin.CreateWindowAndBind('Main', 1920, 720)
         gl.glEnable(gl.GL_DEPTH_TEST)
 
         # Define Projection and initial ModelView matrix
         # Note: 2000 is the render distance, we changed this from 200.
         scam = pangolin.OpenGlRenderState(
-            pangolin.ProjectionMatrix(640, 480, 420, 420, 320, 240, 0.2, 2000),
-            pangolin.ModelViewLookAt(-2, 2, -2, 0, 0, 0, pangolin.AxisDirection.AxisY))
+            pangolin.ProjectionMatrix( 1920, 720, 420, 420, 320, 240, 0.2, 5000),
+            pangolin.ModelViewLookAt(-25, 25, -25, 0, 0, 0, pangolin.AxisDirection.AxisY))
         handler = pangolin.Handler3D(scam)
 
         ui_width = 180
@@ -186,6 +209,7 @@ class PangolinPlot():
             colors[:, 0] = 1 - points[:, 2]
             points = points * 3 + 1
             gl.glPointSize(3)
+            gl.glColor3f(0.0, 1.0, 0.0)
         
             if len(self.pointcloud_positions) > 0:
                 pangolin.glDrawPoints(self.pointcloud_positions)
@@ -198,16 +222,23 @@ class PangolinPlot():
             # trajectory.append(trajectory[-1])
 
             gl.glLineWidth(3)
-
-            
-
             if len(self.states) >1:
                 gl.glColor3f(1.0, 0.0, 1.0)
                 pangolin.glDrawLines(np.array(self.states))
                 gl.glColor3f(0.0, 0.0, 1.0)
                 pangolin.glDrawLines(np.array(self.gt_states))
+
+
             # pangolin.glDrawLines(test_traj)   # consecutive
             gl.glColor3f(0.0, 1.0, 0.0)
+
+
+            #Draw Keyframes:
+            gl.glPointSize(20)
+            gl.glColor3f(0.9, 0.9, 0.0)
+            if len(self.key_frames) > 1:
+                # print(self.key_frames)
+                pangolin.glDrawPoints(self.key_frames)
 
 
             # Draw camera
@@ -220,7 +251,7 @@ class PangolinPlot():
             # Draw boxes
             # poses = [np.identity(4) for i in range(10)]
             # for pose in poses:
-                # pose[:3, 3] = np.random.randn(3) + np.array([5,-3,0])
+            #     pose[:3, 3] = np.random.randn(3) + np.array([5,-3,0])
             # sizes = np.random.random((len(poses), 3))
             # gl.glLineWidth(1)
             # gl.glColor3f(1.0, 0.0, 1.0)

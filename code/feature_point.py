@@ -12,10 +12,11 @@ class FeaturePoint():
 
     def update(self, pose):
         self.R = self.R@pose[:3,:3]
-        self.T = self.T + self.R@pose[:3,3]
-        # self.T = self.R@pose[:3,3]
+        #self.T = self.T + self.R@pose[:3,3]
+        # self.T = self.position + self.R@pose[:3,3]
         # print(np.linalg.det(self.T))
-        self.position = self.T
-        # self.x = self.T[0]
-        # self.y = self.T[1]
-        # self.z = self.T[2]
+        self.position = self.position + pose[:3,3]
+        # self.position = self.T[0]
+        # self.position = self.T[1]
+        # self.position = self.T[2]
+        
