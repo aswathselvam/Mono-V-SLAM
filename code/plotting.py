@@ -6,6 +6,9 @@ import numpy as np
 import OpenGL.GL as gl
 import pypangolin as pangolin
 import threading
+from threading import Thread, Lock
+from multiprocessing import Process, Queue
+
 import random
 import time
 
@@ -102,9 +105,11 @@ class PangolinPlot():
 
         self.gt_states = np.zeros(3)
         self.gt_states = np.vstack((self.gt_states, np.zeros(3)))
-        self.mutex_lock = False
 
-        x = threading.Thread(target=self.plotting_thread)
+        self.mutex = Lock()
+        x = Thread(target=self.plotting_thread)
+        # x = Process(target=self.plotting_thread)
+        x.daemon = True
         x.start()
 
 
@@ -120,9 +125,8 @@ class PangolinPlot():
         self.pointcloud_color=np.squeeze(pointcloud_color)
 
     def plot_trajectory(self, state, gt_state):
-        
-        self.mutex_lock = True
 
+        self.mutex.acquire()
         self.states =  np.vstack((self.states, self.states[-1]))
         self.states = np.vstack((self.states, [-state.z,state.x,state.y])) 
         
@@ -132,6 +136,7 @@ class PangolinPlot():
         
         self.gt_states =  np.vstack((self.gt_states, self.gt_states[-1]))
         self.gt_states = np.vstack((self.gt_states, [gt_state[-1,2,3],gt_state[-1,0,3],gt_state[-1,1,3]])) 
+        self.mutex.release()
 
         # if len(self.gt_states)%2!=0:
         #     self.gt_states =  np.vstack((self.gt_states, self.gt_states[-1]))
@@ -143,8 +148,6 @@ class PangolinPlot():
         
         # self.ax_traj.plot(-self.states[:,2], self.states[:,0],np.zeros(len(self.states[:,1])), color='blue', linestyle='solid', marker='o', markerfacecolor='blue', markersize=2, label='Predicted')
         # self.ax_traj.plot(gt_state[:,2,3], gt_state[:,0,3], np.zeros(len(gt_state[:,1,3])), color='red', linestyle='dashed', marker='o', markerfacecolor='red', markersize=2, label='Ground Truth')
-        time.sleep(0.01)
-        self.mutex_lock = False
         
 
     def plotting_thread(self):
@@ -223,10 +226,13 @@ class PangolinPlot():
 
             gl.glLineWidth(3)
             if len(self.states) >1:
-                gl.glColor3f(1.0, 0.0, 1.0)
-                pangolin.glDrawLines(np.array(self.states))
-                gl.glColor3f(0.0, 0.0, 1.0)
-                pangolin.glDrawLines(np.array(self.gt_states))
+                if not self.mutex.locked():
+                    self.mutex.acquire()
+                    gl.glColor3f(1.0, 0.0, 1.0)
+                    pangolin.glDrawLines(np.array(self.states))
+                    gl.glColor3f(0.0, 0.0, 1.0)
+                    pangolin.glDrawLines(np.array(self.gt_states))
+                    self.mutex.release()
 
 
             # pangolin.glDrawLines(test_traj)   # consecutive
