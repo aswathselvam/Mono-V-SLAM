@@ -116,13 +116,17 @@ class PangolinPlot():
     def plot_point_cloud(self, pointcloud):
         pointcloud_positions = []
         pointcloud_color=[]
+        # pointcloud_positions = self.pointcloud_positions
+        # pointcloud_color= self.pointcloud_color
         for i in range(len(pointcloud)):
             pointcloud_positions.append([pointcloud[i].position[2], pointcloud[i].position[0], pointcloud[i].position[1]])
             pointcloud_color.append(pointcloud[i].color)
 
-        self.pointcloud_positions = np.array(pointcloud_positions)
-        self.pointcloud_color = np.dstack((pointcloud_color,pointcloud_color,pointcloud_color))
-        self.pointcloud_color=np.squeeze(pointcloud_color)
+        self.pointcloud_positions = pointcloud_positions
+        self.pointcloud_color = pointcloud_color
+        # self.pointcloud_positions = np.array(pointcloud_positions)
+        # self.pointcloud_color = np.dstack((pointcloud_color,pointcloud_color,pointcloud_color))
+        # self.pointcloud_color = np.squeeze(pointcloud_color)
 
     def plot_trajectory(self, state, gt_state):
 
@@ -152,7 +156,7 @@ class PangolinPlot():
 
     def plotting_thread(self):
 
-        pangolin.CreateWindowAndBind('Main', 1920, 720)
+        pangolin.CreateWindowAndBind('Mono-V-SLAM', 1920, 720)
         gl.glEnable(gl.GL_DEPTH_TEST)
 
         # Define Projection and initial ModelView matrix
@@ -215,7 +219,10 @@ class PangolinPlot():
             gl.glColor3f(0.0, 1.0, 0.0)
         
             if len(self.pointcloud_positions) > 0:
-                pangolin.glDrawPoints(self.pointcloud_positions)
+                for pt_position, pt_color in zip(self.pointcloud_positions, self.pointcloud_color):
+                    print("PT position:", pt_color)
+                    gl.glColor3f(pt_color/255, pt_color/255, pt_color/255)
+                    pangolin.glDrawPoints([pt_position])
             # pangolin.glDrawColouredCube(0.1)
 
             # Draw lines
