@@ -8,7 +8,7 @@ import pypangolin as pangolin
 import threading
 from threading import Thread, Lock
 from multiprocessing import Process, Queue
-
+import cv2
 import random
 import time
 
@@ -106,6 +106,8 @@ class PangolinPlot():
         self.gt_states = np.zeros(3)
         self.gt_states = np.vstack((self.gt_states, np.zeros(3)))
 
+        self.image = None
+
         self.mutex = Lock()
         x = Thread(target=self.plotting_thread)
         # x = Process(target=self.plotting_thread)
@@ -154,6 +156,23 @@ class PangolinPlot():
         # self.ax_traj.plot(gt_state[:,2,3], gt_state[:,0,3], np.zeros(len(gt_state[:,1,3])), color='red', linestyle='dashed', marker='o', markerfacecolor='red', markersize=2, label='Ground Truth')
         
 
+    def draw(self, map):
+        self.mutex.acquire()
+
+        # Set some random image data and upload to GPU 
+        self.image = cv2.resize(cv2.cvtColor(np.flipud(map.frames[-1].image), cv2.COLOR_GRAY2BGR),(500,200))
+        
+        self.states = np.vstack((np.zeros(3), np.zeros(3)))
+        self.gt_states = np.vstack((np.zeros(3), np.zeros(3)))
+        for i,frame in enumerate(map.frames):
+            self.states = np.vstack((self.states, self.states[-1]))
+            self.states = np.vstack((self.states, [-frame.state.z, frame.state.x, frame.state.y])) 
+            
+            self.gt_states =  np.vstack((self.gt_states, self.gt_states[-1]))
+            self.gt_states = np.vstack((self.gt_states, [frame.gt_state[2],frame.gt_state[0],frame.gt_state[1]])) 
+        self.mutex.release()
+
+
     def plotting_thread(self):
 
         pangolin.CreateWindowAndBind('Mono-V-SLAM', 1920, 720)
@@ -193,7 +212,19 @@ class PangolinPlot():
         # trajectory = np.array(trajectory)
         test_traj = [[0, -6, 6],[0, -10, 10],[0, -10, 10],[0,-10,20]]
         
+        w, h = 500, 200
+        texture = pangolin.GlTexture(w, h, gl.GL_RGB, False, 0, gl.GL_RGB, gl.GL_UNSIGNED_BYTE)
     
+        dimg = pangolin.Display('image')
+        # dimg.SetBounds(
+        #         pangolin.Attach(0),
+        #         pangolin.Attach(1),
+        #         pangolin.Attach.Pix(ui_width),
+        #         pangolin.Attach(1),
+        #         640.0 / 480.0,
+        #     )
+        dimg.SetBounds(pangolin.Attach(0), pangolin.Attach(0.25), pangolin.Attach(0.3), pangolin.Attach(0))
+        # dimg.SetLock(pangolin.Lock.LockLeft, pangolin.Lock.LockTop)
 
         while not pangolin.ShouldQuit():
             gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
@@ -220,7 +251,6 @@ class PangolinPlot():
         
             if len(self.pointcloud_positions) > 0:
                 for pt_position, pt_color in zip(self.pointcloud_positions, self.pointcloud_color):
-                    print("PT position:", pt_color)
                     gl.glColor3f(pt_color/255, pt_color/255, pt_color/255)
                     pangolin.glDrawPoints([pt_position])
             # pangolin.glDrawColouredCube(0.1)
@@ -254,6 +284,14 @@ class PangolinPlot():
                 pangolin.glDrawPoints(self.key_frames)
 
 
+            if self.image is not None:
+                texture.Upload(self.image, gl.GL_RGB, gl.GL_UNSIGNED_BYTE)
+
+                # display the image
+                dimg.Activate()
+                gl.glColor3f(1.0, 1.0, 1.0)
+                texture.RenderToViewport()
+            
             # Draw camera
             # pose = np.identity(4)
             # pose[:3, 3] = np.random.randn(3)

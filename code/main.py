@@ -11,6 +11,7 @@ from visualization_utils import *
 from DisambiguateCameraPose import *
 from plotting import *
 from ego_state import State
+import copy
 
 def H_matrix(rot_mat, t):
     i = np.column_stack((rot_mat, t))
@@ -29,21 +30,23 @@ frame_num = 1
 
 import time 
 
-for pose, pointcloud in compute_camera_pose(img_paths, K):
+for image, image_points, pose, pointcloud in compute_camera_pose(img_paths, K):
 
     start = time.time()
 
-    for i in range(len(pointcloud)):
-        # pointcloud[i] = pointcloud[i]+gt_poses[frame_num,:,3]
-        pointcloud[i].update(gt_poses[frame_num,:,:])
+    # for i in range(len(pointcloud)):
+    #     # pointcloud[i] = pointcloud[i]+gt_poses[frame_num,:,3]
+    #     pointcloud[i].update(gt_poses[frame_num,:,:])
         
     # pointcloud = np.asarray(pointcloud)
-    pangolinplotter.plot_point_cloud(pointcloud[-30:])
+    # pangolinplotter.plot_point_cloud(pointcloud[-30:])
     state.update(pose)
-    pangolinplotter.plot_trajectory(state, gt_poses[:frame_num])
+    # pangolinplotter.plot_trajectory(state, gt_poses[:frame_num])
     frame_num += 1
-    print("Time:", start - time.time())
+    # print("Time:", start - time.time())
+
     # Update data in the Map
+    map.update(image, image_points, copy.deepcopy(state), gt_poses[frame_num,:,3], pointcloud)
     
     
     # Choose Keyframes
@@ -56,3 +59,4 @@ for pose, pointcloud in compute_camera_pose(img_paths, K):
 
 
     # Plot the Map
+    pangolinplotter.draw(map)
