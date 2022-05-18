@@ -93,8 +93,8 @@ class Plot():
 
 class PangolinPlot():
     def __init__(self):
-        self.pointcloud_positions = []
-        self.pointcloud_color=[]
+        self.pointcloud_positions = np.zeros(3)
+        self.pointcloud_color=np.zeros(3)
         
         self.states = np.zeros(3)
         self.states = np.vstack((self.states, np.zeros(3)))
@@ -164,12 +164,49 @@ class PangolinPlot():
         
         self.states = np.vstack((np.zeros(3), np.zeros(3)))
         self.gt_states = np.vstack((np.zeros(3), np.zeros(3)))
+        self.key_frames = 2*np.zeros(3)
+        self.key_frames = np.vstack((self.key_frames,  3*np.zeros(3)))
+        pointcloud_positions = []
+        pointcloud_color=[]
+        self.pointcloud_positions = np.zeros(3)
+        self.pointcloud_color=np.zeros(3)
         for i,frame in enumerate(map.frames):
             self.states = np.vstack((self.states, self.states[-1]))
             self.states = np.vstack((self.states, [-frame.state.z, frame.state.x, frame.state.y])) 
             
             self.gt_states =  np.vstack((self.gt_states, self.gt_states[-1]))
             self.gt_states = np.vstack((self.gt_states, [frame.gt_state[2],frame.gt_state[0],frame.gt_state[1]])) 
+            # self.pointcloud_positions = frame.pointcloud[0]
+
+            
+            # pointcloud_positions = self.pointcloud_positions
+            # pointcloud_color= self.pointcloud_color
+        
+        
+            if frame.isKeyFrame:
+                self.key_frames = np.vstack((self.key_frames,[-frame.state.z, frame.state.x, frame.state.y]))
+
+        frame = map.frames[-1]
+        for i in range(len(frame.pointcloud[0])):
+            # pointcloud_positions.append([frame.pointcloud[0][i][2], frame.pointcloud[0][i][0], frame.pointcloud[0][i][1]])
+            # pointcloud_color.append(frame.pointcloud[1][i])
+            # self.pointcloud_positions = np.vstack((self.pointcloud_positions,np.array([frame.transformed_pointcloud[0][i][0], frame.transformed_pointcloud[0][i][1], frame.transformed_pointcloud[0][i][2]])))
+            # self.pointcloud_positions = np.vstack((self.pointcloud_positions,np.array([-frame.transformed_pointcloud[0][i][2], frame.transformed_pointcloud[0][i][0], frame.transformed_pointcloud[0][i][1]])))
+            self.pointcloud_positions = np.vstack((self.pointcloud_positions,np.array([frame.transformed_pointcloud[0][i][2], -frame.transformed_pointcloud[0][i][1], -frame.transformed_pointcloud[0][i][0]])))
+        # print(frame.pointcloud[1][:,1].shape)
+        self.pointcloud_color = np.dstack([frame.pointcloud[1][:,2],frame.pointcloud[1][:,0],frame.pointcloud[1][:,1]])#np.vstack((self.pointcloud_color,frame.pointcloud[1]))
+        self.pointcloud_color = np.squeeze(self.pointcloud_color)#np.vstack((self.pointcloud_color,frame.pointcloud[1]))
+        # print(self.pointcloud_color.shape)
+
+        # self.pointcloud_color = np.squeeze([frame.pointcloud[1][:,2],frame.pointcloud[1][:,0],frame.pointcloud[1][:,1]])#np.vstack((self.pointcloud_color,frame.pointcloud[1]))
+
+
+        # pointcloud_positions = np.array(pointcloud_positions)
+        # pointcloud_color = np.array(pointcloud_color)
+        # self.pointcloud_positions = np.vstack((self.pointcloud_positions,np.array([frame.pointcloud[0][i][2], frame.pointcloud[0][i][0], frame.pointcloud[0][i][1]])))
+        # self.pointcloud_color = np.vstack((self.pointcloud_color, pointcloud_color))
+        # print(self.pointcloud_color.shape, self.pointcloud_positions.shape)
+
         self.mutex.release()
 
 
@@ -226,6 +263,10 @@ class PangolinPlot():
         dimg.SetBounds(pangolin.Attach(0), pangolin.Attach(0.25), pangolin.Attach(0.3), pangolin.Attach(0))
         # dimg.SetLock(pangolin.Lock.LockLeft, pangolin.Lock.LockTop)
 
+        x_axis = np.array([[0,0,0],[5,0,0]])
+        y_axis = np.array([[0,0,0],[0,5,0]])
+        z_axis = np.array([[0,0,0],[0,0,5]])
+
         while not pangolin.ShouldQuit():
             gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
             gl.glClearColor(1.0, 1.0, 1.0, 1.0)
@@ -239,19 +280,21 @@ class PangolinPlot():
             # gl.glColor3f(1.0, 0.0, 0.0)
             # pangolin.glDrawPoints(points)
 
-            # Draw Point Cloud
-            points = np.random.random((10000, 3))
-            colors = np.zeros((len(points), 3))
-            colors[:, 1] = 1 -points[:, 0]
-            colors[:, 2] = 1 - points[:, 1]
-            colors[:, 0] = 1 - points[:, 2]
-            points = points * 3 + 1
-            gl.glPointSize(3)
+            #Draw axes:
+            gl.glLineWidth(10)
+            gl.glColor3f(1.0, 0.0, 0.0)
+            pangolin.glDrawLines(x_axis)
             gl.glColor3f(0.0, 1.0, 0.0)
-        
-            if len(self.pointcloud_positions) > 0:
+            pangolin.glDrawLines(y_axis)
+            gl.glColor3f(0.0, 0.0, 1.0)
+            pangolin.glDrawLines(z_axis)
+
+            gl.glPointSize(4)
+            if len(self.pointcloud_color) > 5:
+                # print("Plot: ",self.pointcloud_positions.shape, self.pointcloud_color.shape)
                 for pt_position, pt_color in zip(self.pointcloud_positions, self.pointcloud_color):
-                    gl.glColor3f(pt_color/255, pt_color/255, pt_color/255)
+                    # print(pt_color.shape,pt_position.shape)
+                    gl.glColor3f(pt_color[0]/255, pt_color[1]/255, pt_color[2]/255)
                     pangolin.glDrawPoints([pt_position])
             # pangolin.glDrawColouredCube(0.1)
 

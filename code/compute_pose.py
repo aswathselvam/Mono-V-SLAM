@@ -52,11 +52,14 @@ def compute_camera_pose(img_paths, K):
         # print(img1[points1[:,0,1].astype(np.int), points1[:,0,0].astype(np.int)].shape)
         for i in range(len(X)):
             pointcloud_color = img1[points1[i,0,1].astype(np.int), points1[i,0,0].astype(np.int)]/255.0
+            pointcloud_color = np.array([pointcloud_color,pointcloud_color,pointcloud_color])
             # print(pointcloud_color.shape)
             # input()
             pointclouds.append(FeaturePoint(position=X[i], color=pointcloud_color, descriptor=points1_desc[i]))
         
         pointcloud_color = img2[points2[:,0,1].astype(np.int), points2[:,0,0].astype(np.int)]/255.0
+        pointcloud_color = np.dstack((pointcloud_color,pointcloud_color,pointcloud_color))
+        pointcloud_color = np.squeeze(pointcloud_color)
         pointclouds = [X, pointcloud_color, points2_desc]
         yield img2, points2, pose, pointclouds
 
