@@ -12,8 +12,9 @@ class Frame():
     
     def transform_pointcloud(self):
         # print(self.state.R.shape, self.pointcloud[0].T.shape)
-        # self.transformed_pointcloud[0]=(self.state.R.T@self.pointcloud[0].T).T
+        self.transformed_pointcloud[0]=(self.state.R.T@self.pointcloud[0].T).T
         # self.transformed_pointcloud[0]+=self.state.T
         # self.transformed_pointcloud[0]=self.pointcloud[0]@self.state.R
-        self.transformed_pointcloud[0]+=self.state.T
+        self.transformed_pointcloud[0][:,:2]+=self.state.T[:2]
+        self.transformed_pointcloud[0][:,2]+=-self.state.T[2]
     

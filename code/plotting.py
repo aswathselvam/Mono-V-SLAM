@@ -192,7 +192,7 @@ class PangolinPlot():
             # pointcloud_color.append(frame.pointcloud[1][i])
             # self.pointcloud_positions = np.vstack((self.pointcloud_positions,np.array([frame.transformed_pointcloud[0][i][0], frame.transformed_pointcloud[0][i][1], frame.transformed_pointcloud[0][i][2]])))
             # self.pointcloud_positions = np.vstack((self.pointcloud_positions,np.array([-frame.transformed_pointcloud[0][i][2], frame.transformed_pointcloud[0][i][0], frame.transformed_pointcloud[0][i][1]])))
-            self.pointcloud_positions = np.vstack((self.pointcloud_positions,np.array([frame.transformed_pointcloud[0][i][2], -frame.transformed_pointcloud[0][i][1], -frame.transformed_pointcloud[0][i][0]])))
+            self.pointcloud_positions = np.vstack((self.pointcloud_positions,np.array([frame.transformed_pointcloud[0][i][2], frame.transformed_pointcloud[0][i][0], frame.transformed_pointcloud[0][i][1]])))
         # print(frame.pointcloud[1][:,1].shape)
         self.pointcloud_color = np.dstack([frame.pointcloud[1][:,2],frame.pointcloud[1][:,0],frame.pointcloud[1][:,1]])#np.vstack((self.pointcloud_color,frame.pointcloud[1]))
         self.pointcloud_color = np.squeeze(self.pointcloud_color)#np.vstack((self.pointcloud_color,frame.pointcloud[1]))
