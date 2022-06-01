@@ -10,7 +10,13 @@
     - Course: ENPM673 - Perception for Autonomous Robots
 ---
 
+## Output
+Trajectory:
+![Output Image](/assets/output.png)
 
+Pointcloud:
+![Pointcloud](/assets/output.gif)
+Youtube video - [link](https://youtu.be/Nj5nIHlJmwM)
 # Folder structure
 ```bash
 $ tree -L 2
@@ -55,7 +61,6 @@ export SLAM_DATA_FOLDER = <datatset-folder>
 https://github.com/stevenlovegrove/Pangolin
 
 # Run the code
-- Supervised Learning:
 ```bash
 python3 code/main.py
 ```
