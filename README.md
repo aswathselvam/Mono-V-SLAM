@@ -19,7 +19,10 @@
 ---
 ![Pointcloud](/assets/output.gif)
 
+**Simulation Video**
+---
 Youtube video - [link](https://youtu.be/Nj5nIHlJmwM)
+
 # Folder structure
 ```bash
 $ tree -L 2
@@ -68,6 +71,5 @@ https://github.com/stevenlovegrove/Pangolin
 python3 code/main.py
 ```
 
-# Outputs
-Youtube video of simualtion output is available in this [link]().
+
 
