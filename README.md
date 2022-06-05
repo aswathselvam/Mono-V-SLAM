@@ -11,10 +11,12 @@
 ---
 
 ## Output
-Trajectory:
+**Trajectory**
+---
 ![Output Image](/assets/output.png)
 
-Pointcloud: \
+**Pointcloud**
+---
 ![Pointcloud](/assets/output.gif)
 
 Youtube video - [link](https://youtu.be/Nj5nIHlJmwM)
